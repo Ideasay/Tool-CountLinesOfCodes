@@ -75,8 +75,11 @@ if not os.path.exists(dir):
 ##统计并输出
 for root,dirs,files in os.walk(dir):
     for file in files:
-        countfile = type2func[getend(os.path.join(root,file))]
         name_tmp = os.path.join(file)
+        if getend(name_tmp) not in type2func:
+            continue
+        countfile = type2func[getend(os.path.join(root,file))]
+        
         nums_tmp = countfile(os.path.join(root,file))
         print(name_tmp,':',nums_tmp)
         
