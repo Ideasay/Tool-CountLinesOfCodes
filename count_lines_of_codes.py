@@ -40,10 +40,13 @@ def countv(file):
             if line.startswith('module'):
                 flag = 0
             else:
-                print('this is not  a verilog codes file')
                 break
         nums = nums + 1
-    return nums
+    if flag == 0:
+        return nums
+    else:
+        return 'this is not  a verilog codes file'
+        
 
 ##countsh
 def countsh(file):
