@@ -6,8 +6,7 @@ def getend(file):
 
 #统计c,verilog,py,sh四个文件的有效行数的函数
 ## countc
-def countc(file):
-    fhand = open(os.path.join(file),encoding = 'ISO-8859-1')
+def countc(fhand):
     nums = 0
     for line in fhand:
         line = line.strip()
@@ -17,19 +16,12 @@ def countc(file):
     return nums
 
 ##countpy
-def countpy(file):
-    fhand = open(os.path.join(file),encoding = 'utf-8')
-    nums = 0
-    for line in fhand:
-        line = line.strip()
-        if line.startswith('#') or not len(line):
-            continue
-        nums = nums + 1
-    return nums
+def countpy(fhand):
+    return(countsh(fhand))
+
 
 ##countv
-def countv(file):
-    fhand = open(os.path.join(file),encoding = 'utf-8')
+def countv(fhand):
     nums = 0
     flag = 1
     for line in fhand:
@@ -49,8 +41,7 @@ def countv(file):
         
 
 ##countsh
-def countsh(file):
-    fhand = open(os.path.join(file),encoding = 'ISO-8859-1')
+def countsh(fhand):
     nums = 0
     for line in fhand:
         line = line.strip()
@@ -59,9 +50,11 @@ def countsh(file):
         nums = nums + 1
     return nums
 
-#定义一个后缀对应处理方式的字典
-type2func =  {'.c':countc,'.py':countpy,'.v':countv,'.sh':countsh}
-
+#定义一个后缀对应处理方式的字典,以及编码方式的字典,以及统计各类型文件的总和
+type2func =  {'.c':countc,'.h':countc,'.py':countpy,'.v':countv,'.sh':countsh}
+encode = {'.c':'ISO-8859-1','.h':'ISO-8859-1','.py':'utf-8','.v':'utf-8','.sh':'utf-8'}
+sum_all = {'C语言':0,'C语言':0,'Python':0,'Verilog':0,'Unix脚本文件':0}
+typename = {'.c':'C语言','.h':'C语言','.py':'Python','.v':'Verilog','.sh':'Unix脚本文件'}
 
 #主函数
 
@@ -71,6 +64,7 @@ dir = input("enter the folder path:")
 ##判断路径是否存在
 if not os.path.exists(dir):
     print('this dir is not existent')
+    exit()
     
 ##统计并输出
 for root,dirs,files in os.walk(dir):
@@ -78,9 +72,17 @@ for root,dirs,files in os.walk(dir):
         name_tmp = os.path.join(file)
         if getend(name_tmp) not in type2func:
             continue
-        countfile = type2func[getend(os.path.join(root,file))]
-        
-        nums_tmp = countfile(os.path.join(root,file))
+        fhand = open(os.path.join(root,file),encoding = encode[getend(name_tmp)])
+        countfile = type2func[getend(name_tmp)]
+        nums_tmp = countfile(fhand)
+        fhand.close()
         print(name_tmp,':',nums_tmp)
+        if type(nums_tmp) == int:
+            sum_all[typename[getend(name_tmp)]] += nums_tmp
+print('************************************\n',sum_all)
+        
+        
+        
+
         
         
