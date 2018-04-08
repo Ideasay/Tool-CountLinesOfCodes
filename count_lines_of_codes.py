@@ -39,7 +39,7 @@ type2func =  {'.c':countc,'.h':countc,'.py':countpy,'.v':countv,'.sh':countsh}
 sum_all_language = {'C语言':0,'Python':0,'Verilog':0,'Unix脚本文件':0}
 sum_all_name_end = {'.c':0,'.h':0,'.py':0,'.v':0,'.sh':0}
 typename = {'.c':'C语言','.h':'C语言','.py':'Python','.v':'Verilog','.sh':'Unix脚本文件'}
-print(type(sum_all_language))
+
 
 #主函数
 
