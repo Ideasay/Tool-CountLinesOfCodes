@@ -21,23 +21,7 @@ def countpy(fhand):
 
 
 ##countv
-def countv(fhand):
-    nums = 0
-    flag = 1
-    for line in fhand:
-        line = line.strip()
-        if line.startswith('//') or line.startswith('/*') or not len(line):
-            continue
-        if flag == 1:
-            if line.startswith('module'):
-                flag = 0
-            else:
-                break
-        nums = nums + 1
-    if flag == 0:
-        return nums
-    else:
-        return 'this is not  a verilog codes file'
+countv = countc
         
 
 ##countsh
@@ -52,37 +36,60 @@ def countsh(fhand):
 
 #定义一个后缀对应处理方式的字典,以及编码方式的字典,以及统计各类型文件的总和
 type2func =  {'.c':countc,'.h':countc,'.py':countpy,'.v':countv,'.sh':countsh}
-encode = {'.c':'ISO-8859-1','.h':'ISO-8859-1','.py':'utf-8','.v':'utf-8','.sh':'utf-8'}
-sum_all = {'C语言':0,'C语言':0,'Python':0,'Verilog':0,'Unix脚本文件':0}
+sum_all_language = {'C语言':0,'Python':0,'Verilog':0,'Unix脚本文件':0}
+sum_all_name_end = {'.c':0,'.h':0,'.py':0,'.v':0,'.sh':0}
 typename = {'.c':'C语言','.h':'C语言','.py':'Python','.v':'Verilog','.sh':'Unix脚本文件'}
+print(type(sum_all_language))
 
 #主函数
 
-##输入路径
-dir = input("enter the folder path:")
+##输入路径,模式
+print('###################################################')
+print("# 目前仅支持C语言，verilog，python,shell文件的处理  #\n# mode1:按照代码语言进行统计请输入0                 #\n# mode2:按照文件后缀名进行统计输入1                 #")
+print('###################################################')
+mode = int(input("请输入选择的模式："))
+dir = input("输入文件夹路径名:")
+
+
 
 ##判断路径是否存在
 if not os.path.exists(dir):
     print('this dir is not existent')
     exit()
     
-##统计并输出
-for root,dirs,files in os.walk(dir):
-    for file in files:
-        name_tmp = os.path.join(file)
-        if getend(name_tmp) not in type2func:
-            continue
-        fhand = open(os.path.join(root,file),encoding = encode[getend(name_tmp)])
-        countfile = type2func[getend(name_tmp)]
-        nums_tmp = countfile(fhand)
-        fhand.close()
-        print(name_tmp,':',nums_tmp)
-        if type(nums_tmp) == int:
-            sum_all[typename[getend(name_tmp)]] += nums_tmp
-print('************************************\n',sum_all)
-        
-        
-        
+##统计
+if mode == 0:
+    for root,dirs,files in os.walk(dir):
+        for file in files:
+            name_tmp = os.path.join(file)
+            suffix = getend(name_tmp)
+            if suffix not in type2func:
+                continue
+            with open(os.path.join(root,file),encoding = 'utf-8') as fhand:
+                countfile = type2func[suffix]
+                nums_tmp = countfile(fhand)
+                fhand.close()
+            print(name_tmp,':',nums_tmp)
+            sum_all_language[typename[suffix]] += nums_tmp
+    print('###################################################')
+    for i in sum_all_language:
+        print(i,':',sum_all_language[i])
 
-        
-        
+elif mode == 1:
+    require = input("请输入需要统计的目标文件后缀，例如.py,.v：")
+    lang = require.split(',')
+    for root,dirs,files in os.walk(dir):
+        for file in files:
+            name_tmp = os.path.join(file)
+            suffix = getend(name_tmp)
+            if suffix not in type2func or suffix not in lang:
+                continue
+            with open(os.path.join(root,file),encoding = 'utf-8') as fhand:
+                countfile = type2func[suffix]
+                nums_tmp = countfile(fhand)
+                fhand.close()
+            print(name_tmp,':',nums_tmp)
+            sum_all_name_end[suffix] += nums_tmp
+    print('###################################################')
+    for i in lang:
+        print(i,':',sum_all_name_end[i])
