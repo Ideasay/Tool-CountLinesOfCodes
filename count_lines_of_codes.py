@@ -1,4 +1,5 @@
 import os
+import re
 
 #获取一个文件的后缀名
 def getend(file):
@@ -8,16 +9,40 @@ def getend(file):
 ## countc
 def countc(fhand):
     nums = 0
+    isblock = 0
     for line in fhand:
         line = line.strip()
-        if line.startswith('//') or line.startswith('/*') or not len(line):
-            continue
-        nums = nums + 1
+        if(isblock == 0):
+            if line.startswith('//') or not len(line):
+                continue
+            if line.startswith('/*'):
+                if not re.search('.*\*/$',line):
+                    isblock = 1
+                if re.search('.*\*/.*',line):
+                    nums = nums + 1
+                continue
+            elif re.search('.*/\*$',line):
+                isblock = 1
+            elif re.search('.*/\*.*',line):
+                if not re.search('.*/\*.*\*/[$,.*]',line):
+                    isblock = 1
+            nums = nums + 1
+
+        elif(isblock == 1):
+            if  re.search('.*\*/$',line):
+                isblock = 0
+            if re.search('^\*/',line):
+                if not re.search('^\*/.*/\*',line):
+                    isblock = 0
+            if re.search('.*\*/.*',line):
+                if not re.search('.*\*/.*/\*',line):
+                    isblock = 0
+
     return nums
 
 ##countpy
 def countpy(fhand):
-    return(countsh(fhand))
+   return countsh(fhand)
 
 
 ##countv
@@ -39,7 +64,7 @@ type2func =  {'.c':countc,'.h':countc,'.py':countpy,'.v':countv,'.sh':countsh}
 sum_all_language = {'C语言':0,'Python':0,'Verilog':0,'Unix脚本文件':0}
 sum_all_name_end = {'.c':0,'.h':0,'.py':0,'.v':0,'.sh':0}
 typename = {'.c':'C语言','.h':'C语言','.py':'Python','.v':'Verilog','.sh':'Unix脚本文件'}
-
+print(type(sum_all_language))
 
 #主函数
 
@@ -65,7 +90,7 @@ if mode == 0:
             suffix = getend(name_tmp)
             if suffix not in type2func:
                 continue
-            with open(os.path.join(root,file),encoding = 'utf-8') as fhand:
+            with open(os.path.join(root,file),encoding = 'utf  -8') as fhand:
                 countfile = type2func[suffix]
                 nums_tmp = countfile(fhand)
                 fhand.close()
@@ -74,6 +99,7 @@ if mode == 0:
     print('###################################################')
     for i in sum_all_language:
         print(i,':',sum_all_language[i])
+
 
 elif mode == 1:
     require = input("请输入需要统计的目标文件后缀，例如.py,.v：")
@@ -93,3 +119,4 @@ elif mode == 1:
     print('###################################################')
     for i in lang:
         print(i,':',sum_all_name_end[i])
+
